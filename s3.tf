@@ -16,3 +16,20 @@ resource "aws_s3_object" "hello_txt" {
   key     = "hello.txt"
   content = "hello world"
 }
+
+resource "aws_s3_bucket_policy" "main" {
+  bucket = aws_s3_bucket.main.id
+  policy = data.aws_iam_policy_document.s3_main_policy.json
+}
+
+data "aws_iam_policy_document" "s3_main_policy" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.legacy.iam_arn]
+    }
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.main.arn}/*"]
+  }
+}
+
