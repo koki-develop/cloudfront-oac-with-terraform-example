@@ -24,6 +24,20 @@ resource "aws_s3_bucket_policy" "main" {
 
 data "aws_iam_policy_document" "s3_main_policy" {
   statement {
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.main.arn}/*"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_cloudfront_distribution.main.arn]
+    }
+  }
+
+  statement {
     sid = "legacy"
     principals {
       type        = "AWS"
